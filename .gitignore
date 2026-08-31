@@ -1,5 +1,11 @@
 node_modules
 .next
+
 public/uploads/*
 !public/uploads/.gitkeep
+
 .env*
+
+# Serwist
+public/sw.js
+public/swe-worker*
