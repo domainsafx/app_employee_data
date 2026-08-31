@@ -6,14 +6,15 @@ import { useEffect, useState } from "react";
 import { RefChip } from "@/components/ui";
 
 const navItems = [
-  { href: "/employee/dashboard", label: "Home" },
-  { href: "/employee/support", label: "Support" },
+  { href: "/employee/dashboard", label: "Home", icon: "⌂" },
+  { href: "/employee/support", label: "Support", icon: "?" },
 ];
 
 export default function EmployeeNavbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [profile, setProfile] = useState<{ name: string; refId: string } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/employee-profile")
@@ -25,20 +26,24 @@ export default function EmployeeNavbar() {
       });
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/employee-login");
   }
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
-      <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-8">
-          <Link href="/employee/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-navy-700 flex items-center justify-center">
+    <>
+      <header className="bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-40 safe-top">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+          <Link href="/employee/dashboard" className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 shrink-0 rounded-lg bg-navy-700 flex items-center justify-center shadow-sm">
               <span className="font-display text-emerald-400 font-bold text-xs">SP</span>
             </div>
-            <span className="font-display font-semibold text-navy-800 hidden sm:block">Sahayak Partners</span>
+            <span className="font-display font-semibold text-navy-800 truncate">Sahayak Partners</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -57,39 +62,87 @@ export default function EmployeeNavbar() {
               );
             })}
           </nav>
-        </div>
 
-        <div className="flex items-center gap-4">
-          {profile && (
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-slate-800 leading-tight">{profile.name}</p>
-              <div className="mt-0.5">
-                <RefChip refId={profile.refId} />
+          <div className="flex items-center gap-2">
+            {profile && (
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-slate-800 leading-tight truncate max-w-[180px]">{profile.name}</p>
+                <div className="mt-0.5">
+                  <RefChip refId={profile.refId} />
+                </div>
               </div>
-            </div>
-          )}
-          <button onClick={handleLogout} className="text-sm text-slate-400 hover:text-red-600 font-medium">
-            Log out
-          </button>
-        </div>
-      </div>
+            )}
 
-      <nav className="md:hidden flex items-center gap-1 px-4 pb-3 overflow-x-auto">
-        {navItems.map((item) => {
-          const active = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                active ? "bg-navy-50 text-navy-700" : "text-slate-500"
-              }`}
+            <button
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-label="Open account menu"
+              aria-expanded={menuOpen}
+              className="md:hidden w-10 h-10 rounded-lg border border-slate-200 text-slate-600 flex items-center justify-center text-xl"
             >
-              {item.label}
-            </Link>
-          );
-        })}
+              <span aria-hidden>{menuOpen ? "×" : "☰"}</span>
+            </button>
+
+            <button onClick={handleLogout} className="hidden md:block text-sm text-slate-400 hover:text-red-600 font-medium px-2 py-2">
+              Log out
+            </button>
+          </div>
+        </div>
+
+        {menuOpen && (
+          <div className="md:hidden border-t border-slate-100 bg-white px-4 py-3 shadow-sm">
+            {profile && (
+              <div className="pb-3 mb-2 border-b border-slate-100">
+                <p className="text-sm font-semibold text-slate-800">{profile.name}</p>
+                <div className="mt-1"><RefChip refId={profile.refId} /></div>
+              </div>
+            )}
+            <nav className="space-y-1">
+              {navItems.map((item) => {
+                const active = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 min-h-11 px-3 rounded-lg text-sm font-medium ${
+                      active ? "bg-navy-50 text-navy-700" : "text-slate-600"
+                    }`}
+                  >
+                    <span className="w-6 text-center font-semibold" aria-hidden>{item.icon}</span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 min-h-11 px-3 rounded-lg text-sm font-medium text-red-600"
+              >
+                <span className="w-6 text-center" aria-hidden>↪</span>
+                Log out
+              </button>
+            </nav>
+          </div>
+        )}
+      </header>
+
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 safe-bottom">
+        <div className="grid grid-cols-2 max-w-lg mx-auto">
+          {navItems.map((item) => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`min-h-16 flex flex-col items-center justify-center gap-1 text-[11px] font-medium ${
+                  active ? "text-navy-700" : "text-slate-400"
+                }`}
+              >
+                <span className={`text-lg leading-none ${active ? "font-bold" : ""}`} aria-hidden>{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
-    </header>
+    </>
   );
 }

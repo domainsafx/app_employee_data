@@ -49,3 +49,44 @@ body {
   background-image: radial-gradient(circle, #e4e7ec 1px, transparent 1px);
   background-size: 18px 18px;
 }
+
+/* Mobile/PWA helpers */
+html,
+body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 767px) {
+  .chip-ref {
+    letter-spacing: 0.05em;
+  }
+}

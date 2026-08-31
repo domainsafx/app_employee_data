@@ -38,7 +38,7 @@ export default function EmployeeList({ basePath }: { basePath: string }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5 gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-4">
         <div>
           <p className="text-sm text-slate-500">
             {employees.length} of {limit} employee slots used
@@ -50,12 +50,12 @@ export default function EmployeeList({ basePath }: { basePath: string }) {
             />
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Input
             placeholder="Search by name, mobile or reference ID"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-72"
+            className="w-full sm:w-72"
           />
           <Link href={`${basePath}/employees/add`}>
             <Button disabled={employees.length >= limit}>+ Add employee</Button>
@@ -82,7 +82,32 @@ export default function EmployeeList({ basePath }: { basePath: string }) {
           />
         </Card>
       ) : (
-        <Card className="overflow-hidden">
+        <>
+          <Card className="md:hidden overflow-hidden">
+            <div className="divide-y divide-slate-100">
+              {filtered.map((emp) => (
+                <Link key={emp.id} href={`${basePath}/employees/${emp.id}`} className="block p-4 active:bg-sand-50">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-800 truncate">{emp.firstName} {emp.lastName}</p>
+                      <p className="text-xs text-slate-400 truncate mt-0.5">{emp.email}</p>
+                    </div>
+                    <Badge tone={emp.status === "active" ? "emerald" : "slate"}>
+                      {emp.status === "active" ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
+                    <div><p className="text-[11px] uppercase tracking-wide text-slate-400 mb-1">Reference</p><RefChip refId={emp.refId} /></div>
+                    <div><p className="text-[11px] uppercase tracking-wide text-slate-400 mb-1">Commission</p><p className="text-slate-700">{emp.commissionRate}%</p></div>
+                    <div className="col-span-2"><p className="text-[11px] uppercase tracking-wide text-slate-400 mb-1">Mobile</p><p className="text-slate-700">{emp.mobile}</p></div>
+                  </div>
+                  <p className="text-xs font-medium text-navy-700 mt-4">View employee →</p>
+                </Link>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="hidden md:block overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-slate-400 text-xs uppercase tracking-wide border-b border-slate-100">
@@ -122,7 +147,8 @@ export default function EmployeeList({ basePath }: { basePath: string }) {
               ))}
             </tbody>
           </table>
-        </Card>
+          </Card>
+        </>
       )}
     </div>
   );

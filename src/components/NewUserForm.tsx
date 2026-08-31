@@ -127,7 +127,7 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
   if (result) {
     const shareText = `Hi ${result.name}, here's your subscription link — click here to subscribe: ${result.link}`;
     return (
-      <Card className="p-7 max-w-xl">
+      <Card className="p-4 sm:p-7 w-full max-w-xl">
         <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 text-2xl flex items-center justify-center">
           ✓
         </div>
@@ -147,7 +147,7 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
               Share this unique payment link with {result.name}. It's theirs alone and will activate their
               subscription once paid.
             </p>
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 readOnly
                 value={result.link}
@@ -157,14 +157,14 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
                 {copied ? "Copied!" : "Copy"}
               </Button>
             </div>
-            <div className="flex items-center gap-2 mt-3 flex-wrap">
+            <div className="flex flex-col sm:flex-row items-stretch gap-2 mt-3">
               {shareTargets.map((t) => (
                 <a
                   key={t.key}
                   href={t.urlFn(shareText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-navy-50 text-navy-700 hover:bg-navy-100 transition-colors"
+                  className="inline-flex items-center justify-center min-h-11 px-4 py-2 rounded-lg text-sm font-medium bg-navy-50 text-navy-700 hover:bg-navy-100 transition-colors"
                 >
                   Share via {t.label}
                 </a>
@@ -180,7 +180,7 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
               {result.email ? `, ${result.email}` : ""}) asking them to confirm and pay.
             </Alert>
             <p className="text-sm text-slate-500 mt-3">You can still share the link directly if needed:</p>
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 readOnly
                 value={result.link}
@@ -201,12 +201,12 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
   }
 
   return (
-    <Card className="p-7 max-w-xl">
+    <Card className="p-4 sm:p-7 w-full max-w-xl">
       <h2 className="font-display text-xl font-semibold text-navy-800">New user</h2>
       <p className="text-sm text-slate-500 mt-1">Add a user's details and choose how they'll subscribe.</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Name"
             required
@@ -255,7 +255,7 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
           placeholder="Street, city, state, PIN code"
         />
 
-        <div className="flex items-center gap-2 bg-sand-50 border border-slate-200 rounded-lg p-1 w-fit">
+        <div className="flex flex-wrap items-center gap-1 bg-sand-50 border border-slate-200 rounded-lg p-1 w-full sm:w-fit">
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
@@ -277,7 +277,7 @@ export default function NewUserForm({ onAdded }: { onAdded?: () => void }) {
               <span className="ml-1.5 text-emerald-600 text-xs">Save {selectedPackage.annualDiscountPercent}%</span>
             )}
           </button>
-          <span className="px-3 text-sm text-slate-500">₹{price}</span>
+          <span className="w-full sm:w-auto px-3 py-2 sm:py-1.5 text-sm text-slate-500 text-center sm:text-left border-t sm:border-t-0 border-slate-200">₹{price}</span>
         </div>
 
         <div>

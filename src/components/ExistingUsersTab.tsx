@@ -73,86 +73,120 @@ export default function ExistingUsersTab({ refreshKey }: { refreshKey: number })
 
   return (
     <Card className="overflow-hidden">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-slate-400 text-xs uppercase tracking-wide border-b border-slate-100">
-            <th className="px-5 py-3 font-medium">Name</th>
-            <th className="px-5 py-3 font-medium">Contact</th>
-            <th className="px-5 py-3 font-medium">Package</th>
-            <th className="px-5 py-3 font-medium">Amount</th>
-            <th className="px-5 py-3 font-medium">Type</th>
-            <th className="px-5 py-3 font-medium">Status</th>
-            <th className="px-5 py-3 font-medium"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id} className="border-b border-slate-50 last:border-0 align-top">
-              <td className="px-5 py-3.5">
-                <p className="font-medium text-slate-800">{u.name}</p>
-                <p className="text-xs text-slate-400">{new Date(u.createdAt).toLocaleDateString()}</p>
-              </td>
-              <td className="px-5 py-3.5 text-slate-600">
-                {u.contact}
-                {u.email && <p className="text-xs text-slate-400">{u.email}</p>}
-              </td>
-              <td className="px-5 py-3.5 text-slate-600 capitalize">{u.billingCycle}</td>
-              <td className="px-5 py-3.5 text-slate-600">₹{u.amount}</td>
-              <td className="px-5 py-3.5">
+      {/* Mobile cards */}
+      <div className="md:hidden divide-y divide-slate-100">
+        {users.map((u) => (
+          <div key={u.id} className="p-4 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-medium text-slate-800 truncate">{u.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{new Date(u.createdAt).toLocaleDateString()}</p>
+              </div>
+              <Badge tone={u.paymentStatus === "paid" ? "emerald" : u.paymentStatus === "failed" ? "red" : "amber"}>
+                {u.paymentStatus}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">Contact</p>
+                <p className="text-slate-700 truncate mt-0.5">{u.contact}</p>
+                {u.email && <p className="text-xs text-slate-400 truncate">{u.email}</p>}
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">Package</p>
+                <p className="text-slate-700 capitalize mt-0.5">{u.billingCycle}</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">Amount</p>
+                <p className="text-slate-700 mt-0.5">₹{u.amount}</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">Type</p>
                 <select
                   value={u.subscriptionType}
                   disabled={busyId === u.id}
                   onChange={(e) => updateUser(u.id, { subscriptionType: e.target.value })}
-                  className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none focus:ring-2 focus:ring-navy-100"
+                  className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-700 outline-none focus:ring-2 focus:ring-navy-100"
                 >
                   {Object.entries(typeLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
+                    <option key={value} value={value}>{label}</option>
                   ))}
                 </select>
-              </td>
-              <td className="px-5 py-3.5">
-                <Badge tone={u.paymentStatus === "paid" ? "emerald" : u.paymentStatus === "failed" ? "red" : "amber"}>
-                  {u.paymentStatus}
-                </Badge>
-                {u.subscriptionType === "notify_confirm" && u.notifiedAt && u.paymentStatus !== "paid" && (
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Notified {new Date(u.notifiedAt).toLocaleDateString()}
-                  </p>
-                )}
-              </td>
-              <td className="px-5 py-3.5">
-                <div className="flex items-center gap-2 flex-wrap justify-end">
-                  {u.paymentStatus !== "paid" && u.subscriptionType !== "existing" && (
-                    <>
-                      <Button size="sm" variant="outline" onClick={() => copyLink(u)}>
-                        {copiedId === u.id ? "Copied!" : "Copy link"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={busyId === u.id}
-                        onClick={() => updateUser(u.id, { action: "resend" })}
-                      >
-                        Resend
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={busyId === u.id}
-                        onClick={() => updateUser(u.id, { action: "mark-paid" })}
-                      >
-                        Mark paid
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </td>
+              </div>
+            </div>
+
+            {u.subscriptionType === "notify_confirm" && u.notifiedAt && u.paymentStatus !== "paid" && (
+              <p className="text-[11px] text-slate-400">Notified {new Date(u.notifiedAt).toLocaleDateString()}</p>
+            )}
+
+            {u.paymentStatus !== "paid" && u.subscriptionType !== "existing" && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                <Button size="sm" variant="outline" onClick={() => copyLink(u)} className="w-full">
+                  {copiedId === u.id ? "Copied!" : "Copy link"}
+                </Button>
+                <Button size="sm" variant="ghost" disabled={busyId === u.id} onClick={() => updateUser(u.id, { action: "resend" })} className="w-full">
+                  Resend
+                </Button>
+                <Button size="sm" variant="secondary" disabled={busyId === u.id} onClick={() => updateUser(u.id, { action: "mark-paid" })} className="w-full">
+                  Mark paid
+                </Button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-slate-400 text-xs uppercase tracking-wide border-b border-slate-100">
+              <th className="px-5 py-3 font-medium">Name</th>
+              <th className="px-5 py-3 font-medium">Contact</th>
+              <th className="px-5 py-3 font-medium">Package</th>
+              <th className="px-5 py-3 font-medium">Amount</th>
+              <th className="px-5 py-3 font-medium">Type</th>
+              <th className="px-5 py-3 font-medium">Status</th>
+              <th className="px-5 py-3 font-medium"></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id} className="border-b border-slate-50 last:border-0 align-top">
+                <td className="px-5 py-3.5">
+                  <p className="font-medium text-slate-800">{u.name}</p>
+                  <p className="text-xs text-slate-400">{new Date(u.createdAt).toLocaleDateString()}</p>
+                </td>
+                <td className="px-5 py-3.5 text-slate-600">
+                  {u.contact}
+                  {u.email && <p className="text-xs text-slate-400">{u.email}</p>}
+                </td>
+                <td className="px-5 py-3.5 text-slate-600 capitalize">{u.billingCycle}</td>
+                <td className="px-5 py-3.5 text-slate-600">₹{u.amount}</td>
+                <td className="px-5 py-3.5">
+                  <select value={u.subscriptionType} disabled={busyId === u.id} onChange={(e) => updateUser(u.id, { subscriptionType: e.target.value })} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none focus:ring-2 focus:ring-navy-100">
+                    {Object.entries(typeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
+                </td>
+                <td className="px-5 py-3.5">
+                  <Badge tone={u.paymentStatus === "paid" ? "emerald" : u.paymentStatus === "failed" ? "red" : "amber"}>{u.paymentStatus}</Badge>
+                  {u.subscriptionType === "notify_confirm" && u.notifiedAt && u.paymentStatus !== "paid" && <p className="text-[11px] text-slate-400 mt-1">Notified {new Date(u.notifiedAt).toLocaleDateString()}</p>}
+                </td>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {u.paymentStatus !== "paid" && u.subscriptionType !== "existing" && <>
+                      <Button size="sm" variant="outline" onClick={() => copyLink(u)}>{copiedId === u.id ? "Copied!" : "Copy link"}</Button>
+                      <Button size="sm" variant="ghost" disabled={busyId === u.id} onClick={() => updateUser(u.id, { action: "resend" })}>Resend</Button>
+                      <Button size="sm" variant="secondary" disabled={busyId === u.id} onClick={() => updateUser(u.id, { action: "mark-paid" })}>Mark paid</Button>
+                    </>}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </Card>
   );
 }
